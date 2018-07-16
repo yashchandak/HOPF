@@ -16,8 +16,8 @@ class Parser(object):  #
                             choices=['kipf', 'simple', 'chebyshev', 'maxpool', 'add_attention', 'mul_attention'])
         parser.add_argument("--max_depth", default=2, help="Maximum path depth", type=int)
 
-        parser.add_argument("--node_features", default='h', choices=['x', 'h', 'x,h'], help='x for nip connections')
-        parser.add_argument("--neighbor_features", default='h', choices=['x', 'h', 'x,h'])
+        parser.add_argument("--node_features", default='h', choices=['x', 'h', 'x,h', '-'], help='x for nip connections')
+        parser.add_argument("--neighbor_features", default='h', choices=['x', 'h', 'x,h', '-'])
 
         parser.add_argument("--dims", default='64,64,8,8,8', help="Dimensions of hidden layers: comma separated")
         parser.add_argument("--skip_connections", default=True, help="output layer added", type=self.str2bool)
@@ -36,7 +36,7 @@ class Parser(object):  #
         parser.add_argument("--drop_edges", default=0., help="Randomly drop edges at each depth", type=float, choices=np.round(np.arange(0, 1, 0.1), 1))
 
         # Dataset Details
-        parser.add_argument("--dataset", default='gcn-cora', help="Dataset to evluate | Check Datasets folder",
+        parser.add_argument("--dataset", default='cora', help="Dataset to evluate | Check Datasets folder",
                             choices=['cora', 'citeseer', 'wiki', 'amazon', 'facebook', 'cora_multi', 'movielens',
                                     'ppi_sg', 'blogcatalog', 'genes_fn', 'mlgene', 'ppi_gs', 'reddit', 'reddit_ind'])
         parser.add_argument("--labels", default='labels_random', help="Label Sampling Type")
@@ -55,7 +55,7 @@ class Parser(object):  #
 
         # Training parameters
         parser.add_argument("--retrain", default=False, type=self.str2bool, help="Retrain flag")
-        parser.add_argument("--gpu", default=0, help="GPU BUS ID ", type=int)
+        parser.add_argument("--gpu", default=1, help="GPU BUS ID ", type=int)
         parser.add_argument("--verbose", default=0, help="Verbose mode", type=int, choices=[0, 1, 2])
         parser.add_argument("--save_model", default=False, type=self.str2bool)
 
@@ -72,7 +72,7 @@ class Parser(object):  #
         timestamp = str(now.month) + '|' + str(now.day) + '|' + str(now.hour) + ':' + str(now.minute) + ':' + str(
             now.second)
         parser.add_argument("--timestamp", default=timestamp, help="Timestamp to prefix experiment dumps")
-        parser.add_argument("--folder_suffix", default='ppigs_256_4hops', help="folder name suffix")
+        parser.add_argument("--folder_suffix", default='demo', help="folder name suffix")
 
         # TODO Load saved model and saved argparse
         self.parser = parser

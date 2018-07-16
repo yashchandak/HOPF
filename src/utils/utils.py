@@ -1,8 +1,8 @@
 import tensorflow as tf
-from tensorflow.python.framework import ops
-from tensorflow.python.framework import sparse_tensor
-from tensorflow.python.ops import math_ops
-from tensorflow.python.ops import sparse_ops
+#from tensorflow.python.framework import ops
+#from tensorflow.python.framework import sparse_tensor
+#from tensorflow.python.ops import math_ops
+#from tensorflow.python.ops import sparse_ops
 from os import path, mkdir
 from scipy.sparse.linalg.eigen.arpack import eigsh
 from sklearn import preprocessing
@@ -16,36 +16,37 @@ import scipy.io as sio
 # global unique layer ID dictionary for layer name assignment
 _LAYER_UIDS = {}
 
-""" NOT A GENERIC GRAD VERSION for SparseReduceSumSparse
-    Only applicable when last axis of a rank 3 tensor is reduced"""
-@ops.RegisterGradient("SparseReduceSumSparseGrad")
-def _SparseReduceSumSparseGrad(op, unused_output_indices_grad, out_grad, unused_output_shape_grad):
-    """
-    Args:
-    op: the SparseReorder op
-    unused_output_indices_grad: the incoming gradients of the output indices
-    out_grad: the incoming gradients of the output values
+#""" NOT A GENERIC GRAD VERSION for SparseReduceSumSparse
+#    Only applicable when last axis of a rank 3 tensor is reduced"""
 
-    Returns:
-    Gradient for each of the 4 input tensors:
-      (input_indices, input_values, input_shape, reduction_axes)
-    The gradients for input_indices, reduction_axes and input_shape is None.
-    """
+#@ops.RegisterGradient("SparseReduceSumSparseGrad")
+#def _SparseReduceSumSparseGrad(op, unused_output_indices_grad, out_grad, unused_output_shape_grad):
+    # """
+    # Args:
+    # op: the SparseReorder op
+    # unused_output_indices_grad: the incoming gradients of the output indices
+    # out_grad: the incoming gradients of the output values
+    #
+    # Returns:
+    # Gradient for each of the 4 input tensors:
+    #   (input_indices, input_values, input_shape, reduction_axes)
+    # The gradients for input_indices, reduction_axes and input_shape is None.
+    # """
     # sp_indices = op.inputs[0]
     # vals_shape = array_ops.shape(op.inputs[1])
-    sp_shape = op.inputs[2]
-    out_shape = op.outputs[2]
-
-    output_shape_kept_dims = math_ops.to_int64(math_ops.reduced_shape(sp_shape, op.inputs[3]))
-    sp_grad = sparse_tensor.SparseTensor(op.outputs[0], out_grad, out_shape)
-    sp_grad = sparse_ops.sparse_reshape(sp_grad, output_shape_kept_dims)
-
-    #TODO: replace hardcoded 16 with inferred dimension size from sp_shape
-    # sp_tile = sparse_ops.sparse_concat(2, [sp_grad]*math_ops.to_int64(sp_shape)[2]) #tile gradients along 3rd axis
-    sp_tile = sparse_ops.sparse_concat(2, [sp_grad]*128) #tile gradients along 3rd axis
-
-    # (sparse_indices, sparse_values, sparse_shape, reduction_axes)
-    return (None, sp_tile._values, None, None)
+    # sp_shape = op.inputs[2]
+    # out_shape = op.outputs[2]
+    #
+    # output_shape_kept_dims = math_ops.to_int64(math_ops.reduced_shape(sp_shape, op.inputs[3]))
+    # sp_grad = sparse_tensor.SparseTensor(op.outputs[0], out_grad, out_shape)
+    # sp_grad = sparse_ops.sparse_reshape(sp_grad, output_shape_kept_dims)
+    #
+    # #TODO: replace hardcoded 16 with inferred dimension size from sp_shape
+    # # sp_tile = sparse_ops.sparse_concat(2, [sp_grad]*math_ops.to_int64(sp_shape)[2]) #tile gradients along 3rd axis
+    # sp_tile = sparse_ops.sparse_concat(2, [sp_grad]*128) #tile gradients along 3rd axis
+    #
+    # # (sparse_indices, sparse_values, sparse_shape, reduction_axes)
+    # return (None, sp_tile._values, None, None)
 
 
 def get_layer_uid(layer_name=''):
@@ -98,8 +99,14 @@ def check_n_create(dir_path, overwrite=False):
 
 
 def create_directory_tree(dir_path):
+    # Warning: Hacky code here
+    prefix = ''
+    if dir_path[0] == '':
+        dir_path = dir_path[1:]
+        prefix = '/'
+
     for i in range(len(dir_path)):
-        check_n_create(path.join(*(dir_path[:i + 1])))
+        check_n_create(path.join(prefix, *(dir_path[:i + 1])))
 
 
 def remove_directory(dir_path):

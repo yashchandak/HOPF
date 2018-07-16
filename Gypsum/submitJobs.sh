@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
-echo "Ensure \n(a) cython_all_setup.py was executed"
 
 mkdir ./stdoutput
-sbatch --array=0-25 job0.sh
+sbatch --array=0-25 job_cora.sh
 
 #mkdir ./stdoutput_1
 #sbatch --array=0-300 job1.sh

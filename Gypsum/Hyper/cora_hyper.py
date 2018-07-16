@@ -15,16 +15,13 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--base", default=0, help="Base counter for Hyper-param search", type=int)
 parser.add_argument("--inc", default=0, help="Increment counter for Hyper-param search", type=int)
 parser.add_argument("--ppgpu", default=5, help="Parallel Processes per GPU", type=int)
+parser.add_argument("--exp_name", default='GYPSUM_test', help="Name for these set of experiments")
 meta_args = parser.parse_args()
 
 n_parallel_threads = meta_args.ppgpu
 idx = meta_args.base + meta_args.inc * n_parallel_threads
 
-# args_path = '../Experiments/' + timestamp + '/args/'
-# stdout_dump_path = '../Experiments/' + timestamp + '/stdout_dumps/'
-args_path = '../Experiments/args/'
-stdout_dump_path = '../Experiments/stdout_dumps/'
-machine = 'gypsum'
+#machine = 'gypsum'
 get_results_only = False
 
 args = OrderedDict()
@@ -32,7 +29,7 @@ args = OrderedDict()
 # The names should be the same as argument names in parser.py
 args['hyper_params'] = ['dataset', 'batch_size', 'dims', 'neighbors', 'max_depth', 'lr', 'l2',
                         'drop_in', 'wce', 'percents', 'folds', 'skip_connections',
-                        'dense_connections', 'propModel', 'timestamp', 'algos']
+                        'propModel', 'timestamp', 'algos']
 
 args['dataset'] = ['cora']
 args['batch_size'] = [128]  # 16
@@ -46,8 +43,8 @@ args['wce'] = [True]
 args['percents'] = [10]
 args['folds'] = ['1,2,3,4,5']
 args['skip_connections'] = [True]
-args['dense_connections'] = [False]
 args['propModel'] = ['propagation']
+args['timestamp'] = [meta_args.exp_name]
 
 format = ['aggKernel', 'node_features', 'neighbor_features', 'shared_weights', 'max_outer']
 args['algos'] = [
@@ -63,6 +60,9 @@ args['algos'] = [
 
 pos = args['hyper_params'].index('dataset')
 args['hyper_params'][0], args['hyper_params'][pos] = args['hyper_params'][pos], args['hyper_params'][0]
+
+args_path = '../../Experiments/' + args['timestamp'][0] + '/args/'
+stdout_dump_path = '../../Experiments/' + args['timestamp'][0] + '/stdout_dumps/'
 
 
 if not get_results_only:
@@ -86,25 +86,21 @@ if not get_results_only:
     pids = [None] * n_parallel_threads
     f = [None] * n_parallel_threads
     last_process = False
-
+    ctr = 0
     # Start all the parallel threads on SINGLE GPU assigned to this script by Slurm
     # Warning: If Multiple GPUs are assigned by slurm, they will be unused
     for i in range(idx, idx + n_parallel_threads):
         setting = combinations[i]
 
         # Unroll the 'algos' parameters into the settings dictionary
-        setting = dict(zip(args['hyper_params'], setting))
-        setting.update(dict(zip(format, setting['algos'])))
+        setting = OrderedDict(zip(args['hyper_params'], setting))
+        setting.update(OrderedDict(zip(format, setting['algos'])))
         del setting['algos']
 
         # Set Hyper-parameters
         name = ''
         for temp in format:
-            name += ' ' + str(setting[temp])
-
-        now = datetime.now()
-        timestamp = name + str(now.month) + '|' + str(now.day) + '|' + str(now.hour) + ':' + str(now.minute) + ':' + str(now.second)  # +':'+str(now.microsecond)
-        args['timestamp'] = [timestamp]
+            name += '_' + str(setting[temp])
 
         # Create Args Directory to save arguments
         if not path.exists(args_path):
@@ -115,20 +111,26 @@ if not get_results_only:
         if not path.exists(stdout_dump_path):
             create_directory_tree(str.split(stdout_dump_path, sep='/')[:-1])
 
+        # Don't use timestamp to group these set of experiments, Slurm will execute them at diff times.
+        #
+        # now = datetime.now()
+        # timestamp = name + str(now.month) + '|' + str(now.day) + '|' + str(now.hour) + ':' + str(now.minute) + ':' + str(now.second)  # +':'+str(now.microsecond)
+
         # Create command
-        command = "python ../../src/__main__.py "  #TODO
+        command = "python ../../src/__main__.py "
 
         folder_suffix = ''
         for name, value in setting.items():
             command += "--" + name + " " + str(value) + " "
             if name != 'dataset':
                 folder_suffix += "_" + str(value)
-        command += "--" + "folder_suffix " + folder_suffix + '__' + str(i + 1) + '/' + str(n_combinations)
+        command += "--" + "folder_suffix " + '__' + folder_suffix + '__' + str(i + 1) + '|' + str(n_combinations)
         print(i + 1, '/', n_combinations, command)
 
         name = path.join(stdout_dump_path, folder_suffix)
         with open(name, 'w') as f[i]:
-            pids[i] = subprocess.Popen(command.split(), stdout=f[i])
+            pids[ctr] = subprocess.Popen(command.split(), stdout=f[ctr])
+            ctr += 1
         time.sleep(3)
 
         if i == n_combinations - 1:
@@ -137,8 +139,8 @@ if not get_results_only:
     # Wait for all the parallel processes before exiting
     start = datetime.now()
     print('########## Waiting #############')
-    for t in range(i, idx-1, -1):
-        pids[i - t].wait()
+    for i in range(ctr):
+        pids[i].wait()
     end = datetime.now()
     print('########## Waiting Over######### Took', diff(end, start), 'for', n_parallel_threads, 'threads')
 
@@ -147,16 +149,17 @@ else:
     # timestamp = name + '9|8|5:56:26'  # '05|12|03:41'  # Month | Day | hours | minutes (24 hour clock)
 
     # Set Hyper-parameters
-    for algo in args['algos']:
-        name = args_path
-        for temp in format:
-            name += ' ' + str(algo[temp])
+    # for algo in args['algos']:
+    #     for i, temp in enumerate(format):
+    #         arg_copy[temp] = str(algo[i])
+    #     del arg_copy['algos']
 
-        try:
-            args = np.load(name+'.npy').item()
-            write_results(args)
-            print("Done tabulation")
-        except:
-            print('model not found', name)
+        # print(arg_copy)
+        #try:
+        #    args = np.load(path.join(args_path, name+'.npy')).item()
+        #except FileNotFoundError:
+        #    print('model not found')
 
+        write_results(args, path_prefix='../')
+        print("Done tabulation")
 
