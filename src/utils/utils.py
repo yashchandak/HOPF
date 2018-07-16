@@ -83,12 +83,18 @@ def dot(x, y, sparse=False):
     return res
 
 def check_n_create(dir_path, overwrite=False):
-    if not path.exists(dir_path):
-        mkdir(dir_path)
-    else:
-        if overwrite:
-            shutil.rmtree(dir_path)
+    try:
+        if not path.exists(dir_path):
             mkdir(dir_path)
+        else:
+            if overwrite:
+                shutil.rmtree(dir_path)
+                mkdir(dir_path)
+    except FileExistsError:
+        # Mutli-processing error
+        # Folder gets created by other process
+        # between the time this process checks and creates
+        print("Looks like some multi-processing issue... ignored!")
 
 
 def create_directory_tree(dir_path):
