@@ -22,7 +22,7 @@ idx = meta_args.base + meta_args.inc * n_parallel_threads
 
 # args_path = '../Experiments/' + timestamp + '/args/'
 # stdout_dump_path = '../Experiments/' + timestamp + '/stdout_dumps/'
-args_path = '../Experiments/args/'  # TODO
+args_path = '../Experiments/args/'
 stdout_dump_path = '../Experiments/stdout_dumps/'
 machine = 'gypsum'
 get_results_only = False
