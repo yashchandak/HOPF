@@ -7,7 +7,9 @@ from src.tabulate_results import write_results
 from src.utils.utils import *
 import time
 from collections import OrderedDict
+from copy import deepcopy
 import argparse
+
 
 parser = argparse.ArgumentParser()
 
@@ -22,41 +24,37 @@ n_parallel_threads = meta_args.ppgpu
 idx = meta_args.base + meta_args.inc * n_parallel_threads
 
 #machine = 'gypsum'
-get_results_only = False
+#
+get_results_only = True
 
 args = OrderedDict()
 
 # The names should be the same as argument names in parser.py
-args['hyper_params'] = ['dataset', 'batch_size', 'dims', 'neighbors', 'max_depth', 'lr', 'l2',
+args['hyper_params'] = ['algos', 'dataset', 'batch_size', 'dims', 'neighbors', 'max_depth', 'lr', 'l2',
                         'drop_in', 'wce', 'percents', 'folds', 'skip_connections',
-                        'propModel', 'timestamp', 'algos']
-
-args['dataset'] = ['cora']
-args['batch_size'] = [128]  # 16
-args['dims'] = ['64,64,64,64,64,64,64,64,64,64']
-args['neighbors'] = ['all,all,all,all']
-args['max_depth'] = [1, 2]  # 1
-args['lr'] = [1e-2]
-args['l2'] = [0.]
-args['drop_in'] = [0.]
-args['wce'] = [True]
-args['percents'] = [10]
-args['folds'] = ['1,2,3,4,5']
-args['skip_connections'] = [True]
-args['propModel'] = ['propagation']
-args['timestamp'] = [meta_args.exp_name]
+                        'propModel', 'timestamp']
 
 format = ['aggKernel', 'node_features', 'neighbor_features', 'shared_weights', 'max_outer']
 args['algos'] = [
-                   ['simple', 'h', '-', 0, 5],       # Node
-                   ['simple', 'x', 'h', 0, 5],       # Node#
-                   ['simple', 'h', '-', 0, 1],       # Node
-                   ['simple', '-', 'h', 0, 1],       # Neighbor
-                   ['simple', 'x', 'h', 0, 1],       # Simple
-                   ['kipf', 'x', 'h', 0, 1],         # Kipf GCN
-                   ['kipf', 'x', 'h', 1, 1],         # Kipf GCN
-                   ['simple', 'h', 'h', 1, 1],       # Simple
+                   ['simple', 'x', 'h', 0, 1],
+                   # ['simple', 'h', '-', 0, 1],       # Node
+                   # ['simple', '-', 'h', 0, 1],       # Neighbor
                  ]
+
+args['dataset'] = ['cora']
+args['batch_size'] = [128]  # 16
+args['dims'] = ['16,16,16,16,16,16,16,16,16,16']
+args['neighbors'] = ['all,all,all,all']
+args['max_depth'] = [1, 2]  # 1
+args['lr'] = [1e-2]
+args['l2'] = [1e-3]
+args['drop_in'] = [0.5]
+args['wce'] = [True]
+args['percents'] = [10]
+args['folds'] = ['1,2,3']
+args['skip_connections'] = [True]
+args['propModel'] = ['binomial']
+args['timestamp'] = [meta_args.exp_name]
 
 pos = args['hyper_params'].index('dataset')
 args['hyper_params'][0], args['hyper_params'][pos] = args['hyper_params'][pos], args['hyper_params'][0]
@@ -100,7 +98,8 @@ if not get_results_only:
         # Set Hyper-parameters
         name = ''
         for temp in format:
-            name += '_' + str(setting[temp])
+            name += str(setting[temp]) + '_'
+        name = name[:-1]
 
         # Create Args Directory to save arguments
         if not path.exists(args_path):
@@ -145,21 +144,15 @@ if not get_results_only:
     print('########## Waiting Over######### Took', diff(end, start), 'for', n_parallel_threads, 'threads')
 
 else:
-    # name = machine + 'simple_x_-_0_1_1'
-    # timestamp = name + '9|8|5:56:26'  # '05|12|03:41'  # Month | Day | hours | minutes (24 hour clock)
-
-    # Set Hyper-parameters
-    # for algo in args['algos']:
-    #     for i, temp in enumerate(format):
-    #         arg_copy[temp] = str(algo[i])
-    #     del arg_copy['algos']
-
-        # print(arg_copy)
-        #try:
-        #    args = np.load(path.join(args_path, name+'.npy')).item()
-        #except FileNotFoundError:
-        #    print('model not found')
-
-        write_results(args, path_prefix='../')
+    algos = args['algos']
+    args.__delitem__('algos')
+    args['hyper_params'].remove('algos')
+    args['hyper_params'].extend(format)
+    print(args['hyper_params'])
+    for algo in algos:
+        temp = deepcopy(args)
+        temp.update(OrderedDict(zip(format, [[item] for item in algo])))  # Warning: Weird hack
+        write_results(temp, path_prefix='../')
         print("Done tabulation")
+
 

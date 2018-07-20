@@ -93,11 +93,11 @@ class OuterPropagation(object):
             data['features'] = f_data
         adjmat = tf.SparseTensor(indices=adj_indices, values=adj_data, dense_shape=adj_shape)
 
-        if self.config.kernel_name == 'simple':
+        if self.config.kernel_name == 'simple' or self.config.kernel_name == 'nipasymm':
             adjmat = get_tf_unnormalize_adj(adjmat, data['degrees'])
-        elif self.config.kernel_name == 'kipf' and \
+        elif self.config.kernel_name == 'nipsymm' or (self.config.kernel_name == 'kipf' and \
                 self.config.prop_model_name in ['binomial', 'binomial_fusion',
-                                                'propagation', 'propagation_fusion', 'propagation_fusion2']:
+                                                'propagation', 'propagation_fusion', 'propagation_fusion2']):
             adjmat = get_tf_normalize_adj(adjmat, data['degrees'] + 1)
 
         data['adjmat'] = adjmat

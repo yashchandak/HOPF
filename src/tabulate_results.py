@@ -2,14 +2,12 @@ import xlwt
 import itertools
 import numpy as np
 from os import path, mkdir, listdir
-from collections import OrderedDict
 
-format = ['aggKernel', 'node_features', 'neighbor_features', 'shared_weights', 'max_outer']
 
-def write_results(all_args, path_prefix=''):
-
-    expt_path = path_prefix + '../Experiments/' + all_args['timestamp'][0]
+def write_results(args, path_prefix=''):
+    expt_path = path_prefix + '../Experiments/' + args['timestamp'][0]
     save_path = expt_path + '/resuts_xls/'
+
     if not path.exists(save_path):
         mkdir(save_path)
     percents = ['10', 'avg']
@@ -20,12 +18,14 @@ def write_results(all_args, path_prefix=''):
     metrics = ['O_EPOCH', 'I_EPOCH', 'TR_F1', 'VAL_LOSS', 'VAL_F1', 'k-MICRO-F1', 'k-MACRO-F1', 'micro-f1', 'macro-f1', 'MC_ACC', 'ML_ACC', 'BAE']
     n_metrics = len(metrics)
 
-    if all_args is not None:
-        cols = all_args['hyper_params'][1:] + [''] + metrics
+
+    if args is not None:
+        cols = args['hyper_params'][1:] + [''] + metrics
 
         param_values = []
-        for hp_name in all_args['hyper_params'][1:]:
-            param_values.append(all_args[hp_name])
+        for hp_name in args['hyper_params'][1:]:
+            param_values.append(args[hp_name])
+        print(param_values)
         combinations = list(itertools.product(*param_values))
         n_combinations = len(combinations)
 
@@ -39,26 +39,25 @@ def write_results(all_args, path_prefix=''):
                 row0.write(col_id, header)
 
         row_id = 0
-        for i, setting in enumerate(combinations):
-            folder_suffix = ''
-
-            args = OrderedDict(zip(all_args['hyper_params'], setting))
-            args.update(OrderedDict(zip(format, args['algos'])))
-            del args['algos']
+        for i,setting in enumerate(combinations):
+            folder_suffix = '__'
 
             for name, value in zip(args['hyper_params'][1:], setting):
                 folder_suffix += "_" + str(value)
 
-            prefix = path.join(path.join(expt_path, args['dataset'][0]), args['aggKernel'])
-            prefix = path.join(prefix, folder_suffix) + '__' + str(i + 1) + '/' + str(n_combinations)
+            prefix = path.join(path.join(expt_path, args['dataset'][0]), args['aggKernel'][0])
+            print('Prefix: ', prefix)
+            prefix = path.join(prefix, folder_suffix) + '__' + str(i + 1) + '|' + str(n_combinations)
             print(prefix)
 
             if not path.exists(prefix):
+                print("Not found: ", prefix)
                 continue
+
             try:
                 results = np.loadtxt(path.join(prefix, 'metrics.txt'), skiprows=1)
-            except:
-                continue
+            except FileNotFoundError:
+                print('Metric file not found for: ', prefix)
 
             mean_results = np.zeros((1, n_metrics))
             for i in range(len(percents)):
@@ -82,5 +81,7 @@ def write_results(all_args, path_prefix=''):
             row_id +=1
 
     # Save it with a time-stamp
-    book.save(path.join(save_path, args['aggKernel'][0] + '_' + args['node_features'][0] + '_' + args['neighbor_features'][0]
-                        + '_' + str(args['shared_weights'][0]) + '_' + str(args['max_outer'][0]) + '.xls'))
+    file_name = path.join(save_path, args['aggKernel'][0] + '_' + args['node_features'][0] + '_' + args['neighbor_features'][0]
+                        + '_' + str(args['shared_weights'][0]) + '_' + str(args['max_outer'][0]) + '.xls')
+    print("File: ", file_name)
+    book.save(file_name)

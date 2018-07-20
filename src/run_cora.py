@@ -46,18 +46,18 @@ if not get_results_only:
 
     args['dataset'] = ['cora']
     args['batch_size'] = [128]  # 16
-    args['dims'] = ['16,16,16,16,16']
+    args['dims'] = ['16,16,16,16,16', '8,8,8,8,8,8']
     args['neighbors'] = ['all,all,all,all,all']
-    args['max_depth'] = [1, 2, 3, 4, 5]  # 1
+    args['max_depth'] = [1, 2]  # 1
     args['lr'] = [1e-2]
     args['l2'] = [1e-3]
     args['drop_in'] = [0.5]
     args['drop_lr'] = [True]
     args['wce'] = [True]
     args['percents'] = [10]
-    args['folds'] =['1,2,3,4,5']
+    args['folds'] =['1']
     args['skip_connections'] = [True]
-    args['propModel'] = ['propagation_gated']
+    args['propModel'] = ['binomial']
 
     pos = args['hyper_params'].index('dataset')
     args['hyper_params'][0], args['hyper_params'][pos] = args['hyper_params'][pos], args['hyper_params'][0]
