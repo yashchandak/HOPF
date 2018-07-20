@@ -37,7 +37,7 @@ args['hyper_params'] = ['algos', 'dataset', 'batch_size', 'dims', 'neighbors', '
 format = ['aggKernel', 'node_features', 'neighbor_features', 'shared_weights', 'max_outer']
 args['algos'] = [
                    ['simple', 'x', 'h', 0, 1],
-                   # ['simple', 'h', '-', 0, 1],       # Node
+                     ['simple', 'h', '-', 0, 1],       # Node
                    # ['simple', '-', 'h', 0, 1],       # Neighbor
                  ]
 
@@ -123,7 +123,10 @@ if not get_results_only:
             command += "--" + name + " " + str(value) + " "
             if name != 'dataset':
                 folder_suffix += "_" + str(value)
-        command += "--" + "folder_suffix " + '__' + folder_suffix + '__' + str(i + 1) + '|' + str(n_combinations)
+
+        # Remove the n_combination part as it is the total number of experiments for all model per dataset
+        # But tabulate results compute total number of experiments for one model per dataset.
+        command += "--" + "folder_suffix " + '__' + folder_suffix #+ '__' + str(i + 1) + '|' + str(n_combinations)
         print(i + 1, '/', n_combinations, command)
 
         name = path.join(stdout_dump_path, folder_suffix)

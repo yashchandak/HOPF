@@ -47,7 +47,7 @@ def write_results(args, path_prefix=''):
 
             prefix = path.join(path.join(expt_path, args['dataset'][0]), args['aggKernel'][0])
             print('Prefix: ', prefix)
-            prefix = path.join(prefix, folder_suffix) + '__' + str(i + 1) + '|' + str(n_combinations)
+            prefix = path.join(prefix, folder_suffix) #+ '__' + str(i + 1) + '|' + str(n_combinations)
             print(prefix)
 
             if not path.exists(prefix):
