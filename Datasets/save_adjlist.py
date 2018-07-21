@@ -11,6 +11,8 @@ for dataset in datasets:
     file_name = path.join(dataset, 'adjmat.mat')
     if not path.exists(file_name):
         print('dataset not created :', dataset)
+        continue
+
     adjmat = sio.loadmat(file_name)['adjmat']
 
     graph = nx.from_scipy_sparse_matrix(adjmat)
