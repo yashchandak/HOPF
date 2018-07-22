@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 mkdir ./stdoutput
-sbatch --array=0-25 job_cora.sh
+sbatch --array=0-2 job_cora.sh
 
 #mkdir ./stdoutput_1
 #sbatch --array=0-300 job1.sh

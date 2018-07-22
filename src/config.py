@@ -209,3 +209,9 @@ class Config(object):
 
         self.save_model = args.save_model
         self.debug = args.debug
+
+        # Model specific irrelevant hyper-params
+        if (args.aggKernel == 'simple' and args.node_features == 'h' and args.neighbor_features == '-'
+            and args.max_depth > 1): # ICA and node-only with depth more than 1
+            print("Exiting:", args.aggKernel, args.node_features, args.neighbor_features, args.max_depth )
+            exit()

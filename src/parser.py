@@ -44,7 +44,7 @@ class Parser(object):  #
         parser.add_argument("--folds", default='1', help="Training folds comma separated")
 
         # NN Hyper parameters
-        parser.add_argument("--batch_size", default=8, help="Batch size", type=int)
+        parser.add_argument("--batch_size", default=128, help="Batch size", type=int)
         parser.add_argument("--wce", default=True, help="Weighted cross entropy", type=self.str2bool)
         parser.add_argument("--lr", default=1e-2, help="Learning rate", type=float)
         parser.add_argument("--l2", default=1e-3, help="L2 loss", type=float)
@@ -59,15 +59,15 @@ class Parser(object):  #
         parser.add_argument("--verbose", default=0, help="Verbose mode", type=int, choices=[0, 1, 2])
         parser.add_argument("--save_model", default=False, type=self.str2bool)
 
-        parser.add_argument("--max_outer", default=2, help="Maximum outer epoch", type=int)
-        parser.add_argument("--max_inner", default=15, help="70 Maximum inner epoch", type=int)
+        parser.add_argument("--max_outer", default=3, help="Maximum outer epoch", type=int)
+        parser.add_argument("--max_inner", default=70, help="70 Maximum inner epoch", type=int)
 
         parser.add_argument("--drop_lr", default=False, help="Drop lr with patience drop", type=self.str2bool)
         parser.add_argument("--pat", default=30, help="Patience", type=int)
         parser.add_argument("--save_after", default=50, help="Save after epochs", type=int)
         parser.add_argument("--val_freq", default=1, help="Validation frequency", type=int)
         parser.add_argument("--summaries", default=True, help="Save summaries after each epoch", type=self.str2bool)
-        parser.add_argument("--debug", default=5000, help="Reduce data size to debug", type=int)
+        parser.add_argument("--debug", default=0, help="Reduce data size to debug", type=int)
 
         now = datetime.now()
         timestamp = str(now.month) + '|' + str(now.day) + '|' + str(now.hour) + ':' + str(now.minute) + ':' + str(

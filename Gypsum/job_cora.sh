@@ -12,7 +12,7 @@ export PATH="/home/ychandak/miniconda3/envs/tf/bin:$PATH"
 export PYTHONPATH="/home/ychandak/HOPF:$PYTHONPATH"
 source activate tf-1.3
 
-srun python /home/ychandak/HOPF/Swarm/Hyper/cora_hyper.py --inc $SLURM_ARRAY_TASK_ID --base 0
+srun python /home/ychandak/HOPF/Swarm/Hyper/cora_hyper.py --inc $SLURM_ARRAY_TASK_ID --base 0 --ppgpu 10
 
 sleep 1
 exit
