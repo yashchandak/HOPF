@@ -208,3 +208,4 @@ class Config(object):
                 self.max_depth = 1
 
         self.save_model = args.save_model
+        self.debug = args.debug

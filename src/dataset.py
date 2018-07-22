@@ -92,6 +92,13 @@ class Dataset:
         self.train_mask = np.load(path.join(prefix, 'train_ids.npy'))
         self.val_mask = np.load(path.join(prefix, 'val_ids.npy'))
 
+        if self.config.debug:
+            count = self.config.debug
+            self.test_mask = self.test_mask[:count]
+            self.train_mask = self.train_mask[:count]
+            self.val_mask = self.val_mask[:count]
+
+
         self.train_nodes = np.where(self.train_mask)[0]
         self.val_nodes = np.where(self.val_mask)[0]
         self.test_nodes = np.where(self.test_mask)[0]
@@ -118,24 +125,36 @@ class Dataset:
         # Load adjacency matrix - convert to sparse if not sparse # if not sp.issparse(adj):
         adjmat = sio.loadmat(config.paths['adjmat'])['adjmat']
 
-        graph = nx.from_scipy_sparse_matrix(adjmat)
-        # Makes it undirected graph it CSR format
-        adjmat = nx.adjacency_matrix(graph)
-
-        f_adjlist_name = path.join(config.paths['datasets'], config.dataset_name, 'adjlist.pkl')
-        if os.path.exists(f_adjlist_name):
-            print('Adjlist exist: ')
-            with open(f_adjlist_name, "rb") as fp:
-                self.adjlist = pickle.load(fp)
-        else:
-            print('does not exist')
-            self.adjlist = graph.adjacency_list()
-            with open(f_adjlist_name, "wb") as fp:
-                pickle.dump(self.adjlist, fp)
-
         # .indices attribute should only be used on row slices
         if not isinstance(adjmat, sp.csr_matrix):
             adjmat = sp.csr_matrix(adjmat)
+
+        if self.config.debug:
+            count = self.config.debug
+            adjmat = adjmat[:count, :].tocsc()[:, :count]
+            features = features[:count, :]
+            labels = labels[:count, :]
+
+            graph = nx.from_scipy_sparse_matrix(adjmat)
+            adjmat = nx.adjacency_matrix(graph)
+            self.adjlist = graph.adjacency_list()
+
+        else:
+            graph = nx.from_scipy_sparse_matrix(adjmat)
+            # Makes it undirected graph it CSR format
+            adjmat = nx.adjacency_matrix(graph)
+
+            f_adjlist_name = path.join(config.paths['datasets'], config.dataset_name, 'adjlist.pkl')
+            if os.path.exists(f_adjlist_name):
+                print('Adjlist exist: ')
+                with open(f_adjlist_name, "rb") as fp:
+                    self.adjlist = pickle.load(fp)
+            else:
+                print('does not exist')
+                self.adjlist = graph.adjacency_list()
+                with open(f_adjlist_name, "wb") as fp:
+                    pickle.dump(self.adjlist, fp)
+
 
         # check whether the dataset has multilabel or multiclass samples
         multilabel = np.sum(labels) > np.shape(labels)[0]
@@ -187,9 +206,14 @@ class Dataset:
             a_indices = np.mat([adjmat.row, adjmat.col]).transpose()
 
             # Features
-            features = self.features[connected_nodes, :].tocoo()
-            nnz_features = np.array([features.count_nonzero()], dtype=np.int64)
-            f_indices = np.mat([features.row, features.col]).transpose()
+            if self.config.sparse_features:
+                features = self.features[connected_nodes, :].tocoo()
+                nnz_features = np.array([features.count_nonzero()], dtype=np.int64)
+                f_indices = np.mat([features.row, features.col]).transpose()
+            else:
+                features = self.features[connected_nodes, :]
+                nnz_features = np.array([np.count_nonzero(features)], dtype=np.int64)  # Unused
+                f_indices = np.ones(features.shape)                                    # Unused
 
             # Targets
             targets = self.targets[node_ids, :]

@@ -36,33 +36,25 @@ args['hyper_params'] = ['algos', 'dataset', 'batch_size', 'dims', 'neighbors', '
 
 format = ['aggKernel', 'node_features', 'neighbor_features', 'shared_weights', 'max_outer']
 args['algos'] = [
-                   ['simple', 'h', '-', 0, 5],       # SS-ICA
-                   ['simple', 'h', '-', 0, 1],       # Node
-                   ['simple', '-', 'h', 0, 1],       # Neighbor
-                   ['nipsymm', 'x', 'h', 0, 1],       # NIP Symm Lap
-                   ['nipasymm', 'x', 'h', 0, 1],       # NIP Asymm Lap
-                   ['kipf', 'h', 'h', 1, 1],         # Kipf GCN
-                   ['kipf', 'x', 'h', 0, 1],         # NIP Kipf
-                   ['simple', 'h', 'h', 1, 1],       # Simple
+                   ['simple', 'x', 'h', 0, 1],
+                     ['simple', 'h', '-', 0, 1],       # Node
+                   # ['simple', '-', 'h', 0, 1],       # Neighbor
                  ]
 
 args['dataset'] = ['cora']
-args['batch_size'] = [128, 512]  # 16
-args['dims'] = ['16,16,16,16,16,16,16,16,16,16', '64,64,64,64,64,64,64,64,64,64',
-                 '256,256,256,256,256,256,256,256,256,256']
+args['batch_size'] = [128]  # 16
+args['dims'] = ['16,16,16,16,16,16,16,16,16,16']
 args['neighbors'] = ['all,all,all,all']
-args['max_depth'] = [1, 2, 3, 4, 5]  # 1
+args['max_depth'] = [1, 2]  # 1
 args['lr'] = [1e-2]
-args['l2'] = [0, 5e-1, 5e-2, 5e-3, 5e-4, 5e-5, 5e-6]
-args['drop_in'] = [0.0, 0.25, 0.5]
+args['l2'] = [1e-3]
+args['drop_in'] = [0.5]
 args['wce'] = [True]
 args['percents'] = [10]
-args['folds'] = ['1,2,3,4,5']
+args['folds'] = ['1,2,3']
 args['skip_connections'] = [True]
-args['propModel'] = ['binomial'] # 'propagation'
+args['propModel'] = ['binomial']
 args['timestamp'] = [meta_args.exp_name]
-
-
 
 pos = args['hyper_params'].index('dataset')
 args['hyper_params'][0], args['hyper_params'][pos] = args['hyper_params'][pos], args['hyper_params'][0]

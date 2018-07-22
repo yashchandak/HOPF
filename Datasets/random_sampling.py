@@ -4,9 +4,6 @@ import numpy as np
 import os
 import networkx as nx
 
-# IMP: Ensure reproducibility
-np.random.seed(1234)
-
 def get_stats(adjmat, labels, features, path):
     node_count = adjmat.shape[0]
     nodes = range(node_count)
@@ -67,6 +64,10 @@ def check_zero(labels, nodes):
 
 
 def get_samples(labels, per, path, count=5):
+    # IMP: Ensure reproducibility
+    # Set seed each time this fn is called
+    np.random.seed(1234)
+
     total_nodes = labels.shape[0]
     test_count  = int(0.2*total_nodes)
     val_count   = int(0.2*per*total_nodes)
@@ -99,6 +100,7 @@ def get_samples(labels, per, path, count=5):
         test[test_nodes]  = True
 
         print(dir)
+        # print(train_nodes, val_nodes, test_nodes)
         np.save(dir+'train_ids.npy', train)
         np.save(dir+'val_ids.npy', val)
         np.save(dir+'test_ids.npy', test)
@@ -106,8 +108,9 @@ def get_samples(labels, per, path, count=5):
 
 
 root = './'#'Datasets/'
-# TODO: Reddit, Pubmed, PPI
-datasets = ['cora', 'citeseer', 'cora_multi', 'blogcatalog', 'facebook', 'movielens', 'amazon', 'mlgene', 'genes_fn']
+datasets = ['ppi_gs', 'reddit', 'ppi_gs_trans', 'pubmed',
+            'reddit_trans','cora', 'citeseer', 'cora_multi',
+            'blogcatalog', 'facebook', 'movielens', 'amazon', 'mlgene', 'genes_fn']
 percents = [0.1]
 folds = 5
 
@@ -116,7 +119,7 @@ for data in datasets:
     labels = np.load(path+'labels.npy')
     adjmat = loadmat(path+'adjmat.mat')['adjmat']
     features = np.load(path+'features.npy')
-    # get_stats(adjmat, labels, features, path)
+    get_stats(adjmat, labels, features, path)
     for per in percents:
         get_samples(labels, per, path, count=folds)
 

@@ -7,9 +7,7 @@ from src.tabulate_results import write_results
 from src.utils.utils import *
 import time
 from collections import OrderedDict
-from copy import deepcopy
 import argparse
-
 
 parser = argparse.ArgumentParser()
 
@@ -24,19 +22,35 @@ n_parallel_threads = meta_args.ppgpu
 idx = meta_args.base + meta_args.inc * n_parallel_threads
 
 #machine = 'gypsum'
-#
 get_results_only = False
 
 args = OrderedDict()
 
 # The names should be the same as argument names in parser.py
-args['hyper_params'] = ['algos', 'dataset', 'batch_size', 'dims', 'neighbors', 'max_depth', 'lr', 'l2',
+args['hyper_params'] = ['dataset', 'batch_size', 'dims', 'neighbors', 'max_depth', 'lr', 'l2',
                         'drop_in', 'wce', 'percents', 'folds', 'skip_connections',
-                        'propModel', 'timestamp']
+                        'propModel', 'timestamp', 'algos']
+
+args['dataset'] = ['cora']
+args['batch_size'] = [128, 256, 512]  # 16
+args['dims'] = ['16,16,16,16,16,16,16,16,16,16', '32,32,32,32,32,32,32,32,32,32', '64,64,64,64,64,64,64,64,64,64',
+                '128,128,128,128,128,128,128,128,128,128', '256,256,256,256,256,256,256,256,256,256']
+args['neighbors'] = ['all,all,all,all']
+args['max_depth'] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]  # 1
+args['lr'] = [1e-2]
+args['l2'] = [0, 1e-1, 5e-1, 1e-2, 5e-2, 1e-3, 5e-3, 1e-4, 5e-4, 1e-5, 5e-5, 1e-6, 5e-6]
+args['drop_in'] = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+args['wce'] = [True]
+args['percents'] = [10]
+args['folds'] = ['1,2,3,4,5']
+args['skip_connections'] = [True]
+args['propModel'] = ['binomial'] # 'propagation'
+args['timestamp'] = [meta_args.exp_name]
 
 format = ['aggKernel', 'node_features', 'neighbor_features', 'shared_weights', 'max_outer']
 args['algos'] = [
                    ['simple', 'h', '-', 0, 5],       # SS-ICA
+                   # ['simple', 'x', 'h', 0, 5],       # Node#
                    ['simple', 'h', '-', 0, 1],       # Node
                    ['simple', '-', 'h', 0, 1],       # Neighbor
                    ['nipsymm', 'x', 'h', 0, 1],       # NIP Symm Lap
@@ -46,28 +60,10 @@ args['algos'] = [
                    ['simple', 'h', 'h', 1, 1],       # Simple
                  ]
 
-args['dataset'] = ['cora']
-args['batch_size'] = [128, 512]  # 16
-args['dims'] = ['16,16,16,16,16,16,16,16,16,16', '64,64,64,64,64,64,64,64,64,64',
-                 '256,256,256,256,256,256,256,256,256,256']
-args['neighbors'] = ['all,all,all,all']
-args['max_depth'] = [1, 2, 3, 4, 5]  # 1
-args['lr'] = [1e-2]
-args['l2'] = [0, 5e-1, 5e-2, 5e-3, 5e-4, 5e-5, 5e-6]
-args['drop_in'] = [0.0, 0.25, 0.5]
-args['wce'] = [True]
-args['percents'] = [10]
-args['folds'] = ['1,2,3,4,5']
-args['skip_connections'] = [True]
-args['propModel'] = ['binomial'] # 'propagation'
-args['timestamp'] = [meta_args.exp_name]
-
-
-
 pos = args['hyper_params'].index('dataset')
 args['hyper_params'][0], args['hyper_params'][pos] = args['hyper_params'][pos], args['hyper_params'][0]
 
-args_path = '../../Experiments/' + args['timestamp'][0] + '/args/' + args['dataset'][0] + '/'
+args_path = '../../Experiments/' + args['timestamp'][0] + '/args/'
 stdout_dump_path = '../../Experiments/' + args['timestamp'][0] + '/stdout_dumps/'
 
 
@@ -106,8 +102,7 @@ if not get_results_only:
         # Set Hyper-parameters
         name = ''
         for temp in format:
-            name += str(setting[temp]) + '_'
-        name = name[:-1]
+            name += '_' + str(setting[temp])
 
         # Create Args Directory to save arguments
         if not path.exists(args_path):
@@ -131,10 +126,7 @@ if not get_results_only:
             command += "--" + name + " " + str(value) + " "
             if name != 'dataset':
                 folder_suffix += "_" + str(value)
-
-        # Remove the n_combination part as it is the total number of experiments for all model per dataset
-        # But tabulate results compute total number of experiments for one model per dataset.
-        command += "--" + "folder_suffix " + '__' + folder_suffix #+ '__' + str(i + 1) + '|' + str(n_combinations)
+        command += "--" + "folder_suffix " + '__' + folder_suffix + '__' + str(i + 1) + '|' + str(n_combinations)
         print(i + 1, '/', n_combinations, command)
 
         name = path.join(stdout_dump_path, folder_suffix)
@@ -155,15 +147,32 @@ if not get_results_only:
     print('########## Waiting Over######### Took', diff(end, start), 'for', n_parallel_threads, 'threads')
 
 else:
-    algos = args['algos']
-    args.__delitem__('algos')
-    args['hyper_params'].remove('algos')
-    args['hyper_params'].extend(format)
-    print(args['hyper_params'])
-    for algo in algos:
-        temp = deepcopy(args)
-        temp.update(OrderedDict(zip(format, [[item] for item in algo])))  # Warning: Weird hack
-        write_results(temp, path_prefix='../')
-        print("Done tabulation")
+    # name = machine + 'simple_x_-_0_1_1'
+    # timestamp = name + '9|8|5:56:26'  # '05|12|03:41'  # Month | Day | hours | minutes (24 hour clock)
 
+    # Set Hyper-parameters
+    # for algo in args['algos']:
+    #     for i, temp in enumerate(format):
+    #         arg_copy[temp] = str(algo[i])
+    #     del arg_copy['algos']
+
+        # print(arg_copy)
+        #try:
+        #    args = np.load(path.join(args_path, name+'.npy')).item()
+        #except FileNotFoundError:
+        #    print('model not found')
+
+
+    algos = args['algos']
+    for i in algos:
+        args['hyper_params'] = ['aggKernel', 'node_features', 'neighbor_features', 'shared_weights', 'max_outer', 'gpu']
+        args['aggKernel'] = [sys.argv[1]]
+        args['node_features'] = [sys.argv[2]]
+        args['neighbor_features'] = [sys.argv[3]]
+        args['shared_weights'] = [sys.argv[4]]
+        args['max_outer'] = [sys.argv[5]]
+        args['gpu'] = [sys.argv[6]]
+
+        write_results(args, path_prefix='../')
+        print("Done tabulation")
 
