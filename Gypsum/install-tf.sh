@@ -3,6 +3,8 @@
 # Modules
 module initrm cudnn/5.0
 module initadd cuda75 cudnn/5.1
+# More Module commands here:
+# https://www.chpc.utah.edu/presentations/images-and-pdfs/SLURM-modules.pdf
 
 # Install Miniconda
 # curl -O https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh

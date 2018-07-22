@@ -16,7 +16,7 @@ parser = argparse.ArgumentParser()
 # Parameters for Hyper-param sweep
 parser.add_argument("--base", default=0, help="Base counter for Hyper-param search", type=int)
 parser.add_argument("--inc", default=0, help="Increment counter for Hyper-param search", type=int)
-parser.add_argument("--ppgpu", default=5, help="Parallel Processes per GPU", type=int)
+parser.add_argument("--ppgpu", default=3, help="Parallel Processes per GPU", type=int)
 parser.add_argument("--exp_name", default='GYPSUM_test', help="Name for these set of experiments")
 meta_args = parser.parse_args()
 
@@ -51,7 +51,7 @@ args['batch_size'] = [128, 512]  # 16
 args['dims'] = ['16,16,16,16,16,16,16,16,16,16', '64,64,64,64,64,64,64,64,64,64',
                  '256,256,256,256,256,256,256,256,256,256']
 args['neighbors'] = ['all,all,all,all']
-args['max_depth'] = [1, 2, 3]  # 1
+args['max_depth'] = [1, 2, 3, 4]  # 1
 args['lr'] = [1e-2]
 args['l2'] = [0, 1e-1, 5e-1, 1e-2, 5e-2, 1e-3, 5e-3, 1e-4, 5e-4, 1e-5, 5e-5, 1e-6, 5e-6]
 args['drop_in'] = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
@@ -138,7 +138,7 @@ if not get_results_only:
         print(i + 1, '/', n_combinations, command)
 
         name = path.join(stdout_dump_path, folder_suffix)
-        with open(name, 'w') as f[i]:
+        with open(name, 'w') as f[i-idx]:
             pids[ctr] = subprocess.Popen(command.split(), stdout=f[ctr])
             ctr += 1
         time.sleep(3)
