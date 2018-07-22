@@ -1,8 +1,8 @@
 #!/bin/bash
 #
 #SBATCH --job-name=py
-#SBATCH --output=./stdoutput/HOPF_cora_%A_%a.out # output file
-#SBATCH --error=./stdoutput/HOPF_cora.err        # File to which STDERR will be written
+#SBATCH --output=./stdoutput_1/HOPF_cora_%A_%a.out # output file
+#SBATCH --error=./stdoutput_1/HOPF_cora.err        # File to which STDERR will be written
 #SBATCH --partition=titanx-short    # Partition to submit to
 #SBATCH --gres=gpu:1
 #

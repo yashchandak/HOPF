@@ -1,8 +1,8 @@
 #!/bin/bash
 #
 #SBATCH --job-name=py
-#SBATCH --output=./stdoutput/HOPF_cora_%A_%a.out # output file
-#SBATCH --error=./stdoutput/HOPF_cora.err        # File to which STDERR will be written
+#SBATCH --output=./stdoutput_4/HOPF_cora_%A_%a.out # output file
+#SBATCH --error=./stdoutput_4/HOPF_cora.err        # File to which STDERR will be written
 #SBATCH --partition=titanx-short    # Partition to submit to
 #SBATCH --gres=gpu:1
 #
@@ -13,7 +13,7 @@ export PATH="/home/ychandak/miniconda3/envs/tf/bin:$PATH"
 export PYTHONPATH="/home/ychandak/HOPF:$PYTHONPATH"
 source activate tf-1.3
 
-srun python /home/ychandak/HOPF/Gypsum/Hyper/cora_hyper.py --inc $SLURM_ARRAY_TASK_ID --base 0 --ppgpu 5
+srun python /home/ychandak/HOPF/Gypsum/Hyper/cora_hyper.py --inc $SLURM_ARRAY_TASK_ID --base 3000 --ppgpu 5
 
 sleep 1
 exit

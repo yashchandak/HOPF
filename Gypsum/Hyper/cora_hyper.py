@@ -66,7 +66,6 @@ args['gpu'] = [int(os.environ.get('CUDA_VISIBLE_DEVICES', '0').split(',')[0])]
 
 
 
-
 pos = args['hyper_params'].index('dataset')
 args['hyper_params'][0], args['hyper_params'][pos] = args['hyper_params'][pos], args['hyper_params'][0]
 
