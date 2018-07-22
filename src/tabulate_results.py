@@ -25,7 +25,7 @@ def write_results(args, path_prefix=''):
         param_values = []
         for hp_name in args['hyper_params'][1:]:
             param_values.append(args[hp_name])
-        print(param_values)
+        # print(param_values)
         combinations = list(itertools.product(*param_values))
         n_combinations = len(combinations)
 
@@ -46,18 +46,19 @@ def write_results(args, path_prefix=''):
                 folder_suffix += "_" + str(value)
 
             prefix = path.join(path.join(expt_path, args['dataset'][0]), args['aggKernel'][0])
-            print('Prefix: ', prefix)
+            # print('Prefix: ', prefix)
             prefix = path.join(prefix, folder_suffix) #+ '__' + str(i + 1) + '|' + str(n_combinations)
-            print(prefix)
+            # print(prefix)
 
             if not path.exists(prefix):
-                print("Not found: ", prefix)
+                # print("Not found: ", prefix)
                 continue
 
             try:
                 results = np.loadtxt(path.join(prefix, 'metrics.txt'), skiprows=1)
             except FileNotFoundError:
                 print('Metric file not found for: ', prefix)
+            print("here")
 
             mean_results = np.zeros((1, n_metrics))
             for i in range(len(percents)):
