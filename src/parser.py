@@ -14,7 +14,7 @@ class Parser(object):  #
                                      'chebyshev', 'attention', 'binomial', 'binomial_fusion'])
         parser.add_argument("--aggKernel", default='nipasymm', help="kernel names",
                             choices=['nipsymm', 'nipasymm', 'kipf', 'simple', 'chebyshev', 'maxpool', 'add_attention', 'mul_attention'])
-        parser.add_argument("--max_depth", default=3, help="Maximum path depth", type=int)
+        parser.add_argument("--max_depth", default=4, help="Maximum path depth", type=int)
 
         parser.add_argument("--node_features", default='x', choices=['x', 'h', 'x,h', '-'], help='x for nip connections')
         parser.add_argument("--neighbor_features", default='h', choices=['x', 'h', 'x,h', '-'])

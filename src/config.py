@@ -213,5 +213,5 @@ class Config(object):
         # Model specific irrelevant hyper-params
         if (args.aggKernel == 'simple' and args.node_features == 'h' and args.neighbor_features == '-'
             and args.max_depth > 1): # ICA and node-only with depth more than 1
-            print("Exiting:", args.aggKernel, args.node_features, args.neighbor_features, args.max_depth )
+            print("Irrelevant setting. Exiting...", args.aggKernel, args.node_features, args.neighbor_features, args.max_depth )
             exit()

@@ -9,13 +9,14 @@ import time
 from collections import OrderedDict
 from copy import deepcopy
 import argparse
+import os
 
 
 parser = argparse.ArgumentParser()
 
 # Parameters for Hyper-param sweep
 parser.add_argument("--base", default=0, help="Base counter for Hyper-param search", type=int)
-parser.add_argument("--inc", default=0, help="Increment counter for Hyper-param search", type=int)
+parser.add_argument("--inc", default=100, help="Increment counter for Hyper-param search", type=int)
 parser.add_argument("--ppgpu", default=3, help="Parallel Processes per GPU", type=int)
 parser.add_argument("--exp_name", default='GYPSUM_test', help="Name for these set of experiments")
 meta_args = parser.parse_args()
@@ -32,7 +33,7 @@ args = OrderedDict()
 # The names should be the same as argument names in parser.py
 args['hyper_params'] = ['algos', 'dataset', 'batch_size', 'dims', 'neighbors', 'max_depth', 'lr', 'l2',
                         'drop_in', 'wce', 'percents', 'folds', 'skip_connections',
-                        'propModel', 'timestamp']
+                        'propModel', 'timestamp', 'gpu']
 
 format = ['aggKernel', 'node_features', 'neighbor_features', 'shared_weights', 'max_outer']
 args['algos'] = [
@@ -61,6 +62,8 @@ args['folds'] = ['1,2,3,4,5']
 args['skip_connections'] = [True]
 args['propModel'] = ['binomial'] # 'propagation'
 args['timestamp'] = [meta_args.exp_name]
+args['gpu'] = [int(os.environ.get('CUDA_VISIBLE_DEVICES', '0').split(',')[0])]
+
 
 
 
@@ -124,7 +127,8 @@ if not get_results_only:
         # timestamp = name + str(now.month) + '|' + str(now.day) + '|' + str(now.hour) + ':' + str(now.minute) + ':' + str(now.second)  # +':'+str(now.microsecond)
 
         # Create command
-        command = "python ../../src/__main__.py "
+        # command = "python ../../src/__main__.py "
+        command = "python /home/ychandak/HOPF/src/__main__.py "
 
         folder_suffix = ''
         for name, value in setting.items():
