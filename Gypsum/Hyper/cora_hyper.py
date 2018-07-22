@@ -49,7 +49,7 @@ args['algos'] = [
 
 args['dataset'] = ['cora']
 args['batch_size'] = [128, 512]  # 16
-args['dims'] = ['16,16,16,16,16,16,16,16,16,16', '64,64,64,64,64,64,64,64,64,64',
+args['dims'] = ['8,8,8,8,8,8,8,8,8,8', '64,64,64,64,64,64,64,64,64,64', '128,128,128,128,128,128,128,128,128,128',
                  '256,256,256,256,256,256,256,256,256,256']
 args['neighbors'] = ['all,all,all,all']
 args['max_depth'] = [1, 2, 3, 4]  # 1
@@ -59,7 +59,10 @@ args['drop_in'] = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
 args['wce'] = [True]
 args['percents'] = [10]
 args['folds'] = ['1,2,3,4,5']
-args['skip_connections'] = [True]
+args['max_inner'] = [2000]
+args['sparse_features'] = [True]
+args['drop_lr'] = [True]
+args['folds'] = ['1,2,3,4,5']
 args['propModel'] = ['binomial'] # 'propagation'
 args['timestamp'] = [meta_args.exp_name]
 args['gpu'] = [int(os.environ.get('CUDA_VISIBLE_DEVICES', '0').split(',')[0])]

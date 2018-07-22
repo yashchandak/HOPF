@@ -24,7 +24,7 @@ class Parser(object):  #
 
         parser.add_argument("--shared_weights", default=0, type=int)
         parser.add_argument("--bias", default=False, type=self.str2bool)
-        parser.add_argument("--sparse_features", default=False, help="For current datasets - manually set in config.py", type=self.str2bool)
+        parser.add_argument("--sparse_features", default=True, help="For current datasets - manually set in config.py", type=self.str2bool)
         # parser.add_argument("--featureless", default=False, help="Non-attributed graphs", type=self.str2bool)
 
         # Node attributes pertubation
@@ -41,7 +41,7 @@ class Parser(object):  #
                                     'ppi_sg', 'blogcatalog', 'genes_fn', 'mlgene', 'ppi_gs', 'reddit', 'reddit_ind'])
         parser.add_argument("--labels", default='labels_random', help="Label Sampling Type")
         parser.add_argument("--percents", default='10', help="Training percent comma separated, ex:5,10,20")
-        parser.add_argument("--folds", default='1', help="Training folds comma separated")
+        parser.add_argument("--folds", default='1,2,3,4,5', help="Training folds comma separated")
 
         # NN Hyper parameters
         parser.add_argument("--batch_size", default=512, help="Batch size", type=int)
