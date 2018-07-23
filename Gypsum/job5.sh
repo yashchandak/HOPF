@@ -9,7 +9,7 @@
 #SBATCH --mail-type=END
 #SBATCH --mail-user=ychandak@cs.umass.edu
 
-export PATH="/home/ychandak/miniconda3/envs/tf/bin:$PATH"
+export PATH="/home/ychandak/miniconda3/envs/tf-1.3/bin:$PATH"
 export PYTHONPATH="/home/ychandak/HOPF:$PYTHONPATH"
 source activate tf-1.3
 
