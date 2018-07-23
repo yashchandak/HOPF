@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# Make sure new set of train-test labels are created
+# Change the path for main in hyper_dataset
+#
+
 #mkdir -p ./stdoutput
 #sbatch --array=0-2 job_cora.sh
 
@@ -14,3 +18,6 @@ sbatch --array=0-1000 job1.sh
 #
 #mkdir -p ./stdoutput_4
 #sbatch --array=0-1000 job4.sh
+#
+mkdir -p ./stdoutput_5
+sbatch --array=0-1000 job5.sh
