@@ -58,7 +58,6 @@ def write_results(args, path_prefix=''):
                 results = np.loadtxt(path.join(prefix, 'metrics.txt'), skiprows=1)
             except FileNotFoundError:
                 print('Metric file not found for: ', prefix)
-            print("here")
 
             mean_results = np.zeros((1, n_metrics))
             for i in range(len(percents)):
@@ -83,6 +82,6 @@ def write_results(args, path_prefix=''):
 
     # Save it with a time-stamp
     file_name = path.join(save_path, args['aggKernel'][0] + '_' + args['node_features'][0] + '_' + args['neighbor_features'][0]
-                        + '_' + str(args['shared_weights'][0]) + '_' + str(args['max_outer'][0]) + '.xls')
+                        + '_' + str(args['shared_weights'][0]) + '_' + str(args['max_outer'][0]) + '_' + str(args['skip_connections'][0]) + '.xls')
     print("File: ", file_name)
     book.save(file_name)

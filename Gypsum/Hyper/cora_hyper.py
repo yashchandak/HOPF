@@ -16,8 +16,8 @@ parser = argparse.ArgumentParser()
 
 # Parameters for Hyper-param sweep
 parser.add_argument("--base", default=0, help="Base counter for Hyper-param search", type=int)
-parser.add_argument("--inc", default=100, help="Increment counter for Hyper-param search", type=int)
-parser.add_argument("--ppgpu", default=3, help="Parallel Processes per GPU", type=int)
+parser.add_argument("--inc", default=0, help="Increment counter for Hyper-param search", type=int)
+parser.add_argument("--ppgpu", default=5, help="Parallel Processes per GPU", type=int)
 parser.add_argument("--exp_name", default='GYPSUM_test', help="Name for these set of experiments")
 meta_args = parser.parse_args()
 
@@ -26,7 +26,7 @@ idx = meta_args.base + meta_args.inc * n_parallel_threads
 
 #machine = 'gypsum'
 #
-get_results_only = True
+get_results_only = False
 
 args = OrderedDict()
 
@@ -37,15 +37,15 @@ args['hyper_params'] = ['algos', 'dataset', 'batch_size', 'dims', 'neighbors', '
 
 format = ['aggKernel', 'node_features', 'neighbor_features', 'shared_weights', 'max_outer', 'skip_connections']
 args['algos'] = [
-                   # ['simple', 'h', '-', 0, 5, True],       # SS-ICA
-                   # ['simple', 'h', '-', 0, 1, True],       # Node
-                   # ['simple', '-', 'h', 0, 1, True],       # Neighbor
-                   # ['nipsymm', 'x', 'h', 0, 1, True],      # NIP Symm Lap
-                   # ['nipasymm', 'x', 'h', 0, 1, True],     # NIP Asymm Lap
+                   ['simple', 'h', '-', 0, 5, True],       # SS-ICA
+                   ['simple', 'h', '-', 0, 1, True],       # Node
+                   ['simple', '-', 'h', 0, 1, True],       # Neighbor
+                   ['nipsymm', 'x', 'h', 0, 1, True],      # NIP Symm Lap
+                   ['nipasymm', 'x', 'h', 0, 1, True],     # NIP Asymm Lap
                    ['kipf', 'h', 'h', 1, 1, True],         # Kipf GCN
                    ['kipf', 'h', 'h', 1, 1, False],        # Kipf GCN-No skip
-                   # ['kipf', 'x', 'h', 0, 1, True],         # NIP Kipf
-                   # ['simple', 'h', 'h', 1, 1, True],       # Simple
+                   ['kipf', 'x', 'h', 0, 1, True],         # NIP Kipf
+                   ['simple', 'h', 'h', 1, 1, True],       # Simple
                  ]
 
 args['dataset'] = ['cora']
@@ -55,12 +55,12 @@ args['dims'] = ['8,8,8,8,8,8,8,8,8,8', '64,64,64,64,64,64,64,64,64,64', '128,128
 args['neighbors'] = ['all,all,all,all']
 args['max_depth'] = [1, 2, 3, 4]  # 1
 args['lr'] = [1e-2]
-args['l2'] = [0, 1e-1, 5e-1, 1e-2, 5e-2, 1e-3, 5e-3, 1e-4, 5e-4, 1e-5, 5e-5, 1e-6, 5e-6]
+args['l2'] = [0, 1e-1, 5e-1, 1e-2, 5e-2, 1e-3, 5e-3, 1e-4, 5e-4, 1e-5, 5e-5, 1e-6]#, 5e-6]
 args['drop_in'] = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
 args['wce'] = [True]
 args['percents'] = [10]
-args['folds'] = ['1,2'] #'1,2,3,4,5'
-args['max_inner'] = [70] #2000
+args['folds'] = ['1,2,3,4,5'] #'1,2,3,4,5'
+args['max_inner'] = [2000] #2000
 args['sparse_features'] = [True]
 args['drop_lr'] = [True]
 args['propModel'] = ['binomial'] # 'propagation'
