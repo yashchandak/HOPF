@@ -22,7 +22,7 @@ parser.add_argument("--exp_name", default='GYPSUM_test', help="Name for these se
 meta_args = parser.parse_args()
 
 n_parallel_threads = meta_args.ppgpu
-idx = meta_args.base + meta_args.inc * n_parallel_threads
+idx = (meta_args.base + meta_args.inc) * n_parallel_threads
 
 #machine = 'gypsum'
 #
@@ -31,8 +31,8 @@ get_results_only = False
 args = OrderedDict()
 
 # The names should be the same as argument names in parser.py
-args['hyper_params'] = ['algos', 'dataset', 'batch_size', 'dims', 'neighbors', 'max_depth', 'lr', 'l2',
-                        'drop_in', 'wce', 'percents', 'folds', 'max_inner', 'sparse_features', 'drop_lr',
+args['hyper_params'] = ['algos', 'dataset', 'max_depth', 'batch_size', 'dims', 'l2',
+                        'drop_in', 'neighbors',  'lr',  'wce', 'percents', 'folds', 'max_inner', 'sparse_features', 'drop_lr',
                         'propModel', 'timestamp', 'gpu']
 
 format = ['aggKernel', 'node_features', 'neighbor_features', 'shared_weights', 'max_outer', 'skip_connections']
@@ -49,14 +49,15 @@ args['algos'] = [
                  ]
 
 args['dataset'] = ['cora']
+
+args['max_depth'] = [1, 2, 3, 4]  # 1
 args['batch_size'] = [128, 512]  # 16
 args['dims'] = ['8,8,8,8,8,8,8,8,8,8', '64,64,64,64,64,64,64,64,64,64', '128,128,128,128,128,128,128,128,128,128',
                  '256,256,256,256,256,256,256,256,256,256']
-args['neighbors'] = ['all,all,all,all']
-args['max_depth'] = [1, 2, 3, 4]  # 1
-args['lr'] = [1e-2]
 args['l2'] = [0, 1e-1, 5e-1, 1e-2, 5e-2, 1e-3, 5e-3, 1e-4, 5e-4, 1e-5, 5e-5, 1e-6, 5e-6]
 args['drop_in'] = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]#, 0.6]
+args['neighbors'] = ['all,all,all,all']
+args['lr'] = [1e-2]
 args['wce'] = [True]
 args['percents'] = [10]
 args['folds'] = ['1,2,3,4,5'] #'1,2,3,4,5'
@@ -129,8 +130,8 @@ if not get_results_only:
         # timestamp = name + str(now.month) + '|' + str(now.day) + '|' + str(now.hour) + ':' + str(now.minute) + ':' + str(now.second)  # +':'+str(now.microsecond)
 
         # Create command
-        command = "python ../../src/__main__.py "
-        # command = "python /home/ychandak/HOPF/src/__main__.py "
+        # command = "python ../../src/__main__.py "
+        command = "python /home/ychandak/HOPF/src/__main__.py "
 
         folder_suffix = ''
         for name, value in setting.items():
@@ -144,7 +145,7 @@ if not get_results_only:
         print(i + 1, '/', n_combinations, command)
 
         name = path.join(stdout_dump_path, folder_suffix)
-        with open(name, 'w') as f[i-idx]:
+        with open(name, 'w') as f[ctr]:
             pids[ctr] = subprocess.Popen(command.split(), stdout=f[ctr])
             ctr += 1
         time.sleep(3)

@@ -56,7 +56,7 @@ def write_results(args, path_prefix=''):
 
             try:
                 results = np.loadtxt(path.join(prefix, 'metrics.txt'), skiprows=1)
-            except FileNotFoundError:
+            except:
                 print('Metric file not found for: ', prefix)
 
             mean_results = np.zeros((1, n_metrics))

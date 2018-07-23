@@ -35,3 +35,8 @@ squeue -l --Format="account,username,numcpus,state,timeleft,jobid,memory"
 
 ## collect results
 scp -r ychandak@swarm2.cs.umass.edu:~/RL/Experiments ./exp_swarm
+
+## collecting results
+zip -r results.zip ./results_xls/
+curl --upload-file ./results.zip https://transfer.sh/results.zip
+unzip results.zip
